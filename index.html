@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="https://cdn.btclass.cn/jquery/jquery-3.2.1.min.js"></script>
+  <script src="./libs/codemirror/codemirror.js"></script>
+  <script src="./libs/codemirror/mode/javascript.js"></script>
+  <script src="./libs/codemirror/addon/closebrackets.js"></script>
+  <link rel="stylesheet" href="./libs/codemirror/codemirror.css">
+  <link rel="stylesheet" href="./libs/codemirror/theme/solarized.css">
+  <script type="module" src="./index.js"></script>
+  <style>
+    .container {
+      position: relative;
+      width: 100%;
+      background-color: #333;
+      padding: 0;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      border-right: 1px solid black;
+      border-left: 1px solid black;
+    }
+    .floor {
+      position: absolute;
+      width: 100%;
+      height: 49px;
+      background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.1));
+      border-bottom: 1px solid rgb(51, 51, 51);
+    }
+    .floor .buttonindicator {
+      line-height: 50px;
+      padding-left: 90px;
+      color: rgba(255, 255, 255, 0.2);
+    }
+    .floor-num {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.15);
+      font-size: 32px;
+      line-height: 50px;
+      padding-left: 10px;
+    }
+    .floor .user-num {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 50px;
+      left: 54px;
+    }
+    .elevator {
+      min-width: 70px;
+      background-color: #4F8686;
+      border: 2px solid white;
+      height: 46px;
+      z-index: 1;
+      position: absolute;
+    }
+    .elevator .directionindicator {
+      position: absolute;
+      font-size: 10px;
+      top: 3px;
+      color: #FFF;
+    }
+    .activated {
+      color: #33ff44 !important;
+    }
+    .elevator .directionindicator.directionindicatorup {
+      left: 2px;
+    }
+    .elevator .directionindicator.directionindicatordown {
+      right: 2px;
+    }
+    .elevator .buttonindicator {
+      display: inline-block;
+      position: absolute;
+      top: 5px;
+      left: 20px;
+      width: calc(100% - 40px);
+      text-align: center;
+      font-size: 8px;
+      line-height: 14px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+    .elevator .user-num {
+      display: inline-block;
+      position: absolute;
+      top: 35px;
+      width: 95%;
+      text-align: center;
+      font-size: 8px;
+      line-height: 8px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+    .statscontainer {
+      font: 12px Consolas, Monaco, monospace;
+      line-height: 10px;
+      color: #999;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 240px;
+      height: 100%;
+      padding: 20px;
+      z-index: 1;
+      background: #333;
+    }
+    .statscontainer div {
+      border-bottom: 1px solid #444;
+    }
+    .statscontainer div, .statscontainer span {
+      position: absolute;
+      display: block;
+      width: 240px;
+      height: 10px;
+    }
+    .statscontainer .value {
+      text-align: right;
+    }
+    .modal-wrap {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+    }
+    .modal {
+      background: #FFF;
+      width: 65%;
+      margin: 80px auto;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .modal textarea {
+      width: 90%;
+      margin: 30px 0 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .modal .btn {
+      display: inline-block;
+      background: #00a0ea;
+      color: #FFFFFF;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .challenge-title {
+      font-size: 22px;
+      text-align: center;
+      color: #333;
+    }
+    .btn-list {
+      position: absolute;
+      right: 20px;
+      top: 13px;
+    }
+    .btn-list .btn {
+      display: inline-block;
+      background: #00a0ea;
+      color: #FFFFFF;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="challenge-title"></h1>
+  <div class="btn-list">
+    <div class="btn" id="start-btn">开始</div>
+    <div class="btn" id="import-challenge-btn">导入关卡</div>
+  </div>
+  <div id="container" class="container">
+  </div>
+  <div class="code">
+    <textarea name="Code" id="code"></textarea>
+  </div>
+
+  <div class="modal-wrap" id="import-modal" style="display: none;">
+    <div class="modal">
+      <textarea id="challenge-textarea" rows="10"></textarea>
+      <div id="confirm-import" class="btn">确认导入</div>
+    </div>
+  </div>
+</body>
+</html>
